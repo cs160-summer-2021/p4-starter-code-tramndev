@@ -35,7 +35,6 @@
         'ws://' + window.location.host + '/ws/draw');
 
     tool.onMouseMove = function(event) { //http://paperjs.org/reference/tool/ path examples
-       path.add(event.point);
        // You may need to add code here if you want to pass any other information.
        socket.send('{"user": "pt", "val": [' + [event.point.x, event.point.y].toString() + ']}');
     }
