@@ -1,0 +1,590 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Mindmap</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'draw/vendor/bootstrap/css/bootstrap.min.css' %}">
+    <script type="text/javascript" src="{% static 'draw/vendor/jquery/jquery-3.3.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'draw/vendor/paper/paper-full.min.js' %}"></script>
+
+
+    <!-- Library for color picker -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.4.5/jscolor.js"></script>
+
+    <!-- Icon library for social media button -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            background-color: rgb(252, 249, 249);
+        }
+
+        /* SOCIAL MEDIA BUTTONS */
+        .label-container{
+            position:fixed;
+            bottom:48px;
+            right:105px;
+            display:table;
+            visibility: hidden;
+        }
+
+        .label-text{
+            color:#FFF;
+            background:rgba(51,51,51,0.5);
+            display:table-cell;
+            vertical-align:middle;
+            padding:10px;
+            border-radius:3px;
+        }
+
+        .label-arrow{
+            display:table-cell;
+            vertical-align:middle;
+            color:#333;
+            opacity:0.5;
+        }
+
+        .float{
+            position:fixed;
+            width:60px;
+            height:60px;
+            bottom:40px;
+            right:40px;
+            background-color:#2B98F0 ;
+            color:#FFF;
+            border-radius:50px;
+            text-align:center;
+            box-shadow: 2px 2px 3px #999;
+            z-index:1000;
+            animation: bot-to-top 2s ease-out;
+        }
+
+        ul{
+            position:fixed;
+            right:40px;
+            padding-bottom:20px;
+            bottom:80px;
+            z-index:100;
+        }
+
+        ul li{
+            list-style:none;
+            margin-bottom:10px;
+        }
+        
+
+        ul li a{
+            border-radius:50px;
+            text-align:center;
+            box-shadow: 2px 2px 3px #999;
+            color:#FFF;
+            width:60px;
+            height:60px;
+            display:block;
+        }
+        #out {
+            background-color: green;
+            border-radius:50px;
+        }
+        #reset {
+            background-color: #f94134;
+            border-radius:50px;
+        }
+        #facebook {
+            background-color: #227BEF;
+            border-radius:50px;
+        }
+        #google {
+            background-color: #EA4335;
+            border-radius:50px;
+        }
+        #twitter {
+            background-color: #1DA1F2;
+            border-radius:50px;
+        }
+
+        ul:hover{
+            visibility:visible!important;
+            opacity:1!important;
+            background-color:white ;
+            color:#1DA1F2;
+        }
+
+
+        .my-float{
+            font-size:24px;
+            margin-top:18px;
+        }
+
+        a#menu-share + ul{
+        visibility: hidden;
+        }
+
+        a#menu-share:hover + ul{
+        visibility: visible;
+        animation: scale-in 0.5s;
+        }
+
+        a#menu-share i{
+            animation: rotate-in 0.5s;
+        }
+
+        a#menu-share:hover > i{
+            animation: rotate-out 0.5s;
+        }
+
+        @keyframes bot-to-top {
+            0%   {bottom:-40px}
+            50%  {bottom:40px}
+        }
+
+        @keyframes scale-in {
+            from {transform: scale(0);opacity: 0;}
+            to {transform: scale(1);opacity: 1;}
+        }
+
+        @keyframes rotate-in {
+            from {transform: rotate(0deg);}
+            to {transform: rotate(360deg);}
+        }
+
+        @keyframes rotate-out {
+            from {transform: rotate(360deg);}
+            to {transform: rotate(0deg);}
+        }
+        
+
+        /* COLORING CONTROL PANEL */
+        #color-palette {
+            width: 160px;
+            /* background-color: #f1f1f1; */
+            display: flex;
+            flex-wrap: wrap;
+            position: absolute;
+            top: 50px;
+            left: 50px;
+        }
+
+        .swatch {
+            width: 64px;
+            height: 64px;
+            -moz-border-radius: 32px;
+            -webkit-border-radius: 32px;
+            border-radius: 32px;
+            margin: 5px;
+            border-width: 2px;
+            border-style: solid;
+            border-color: rgb(247, 237, 237);
+        }
+
+        /* CANVAS */
+        #canvas-container {
+            padding-top: 60px;
+            padding-left: 25%;
+        }
+
+        #myCanvas {
+            width: 700px; 
+            height: 700px;
+            display: block;
+            background-color: rgb(255, 255, 255);
+            box-shadow: 5px 5px 5px 5px #f4f1f1;
+        }
+
+        .tool-control {
+            bottom: 50px;
+            height: 160px;
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #tool-panel {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            width: 100vw;
+            justify-content: center;
+        }
+
+        
+        .tool-float{
+            width:85px;
+            height:85px;
+            background-color:transparent ;
+            color: #1DA1F2;
+            border-radius:50px;
+            border-width: 0px;
+            text-align:center;
+            box-shadow: 2px 2px 3px #999;
+            z-index:1000;
+        }
+
+        .tool-image {
+            width: 40px;
+            pointer-events:none;
+        }
+        .slidecontainer {
+            bottom: 170px;
+            left: 30%;
+            width: 520px;
+            height: 50px;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            
+
+        }
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            border-radius: 20px;
+            border-width: 0.5px;
+            border-style: solid;
+            border-color: silver;
+            box-shadow: 5px 5px 5px 5px #f4f1f1;
+            background: white;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+            display: inline-block;
+        }
+        .slider:hover {
+            opacity: 1;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 500%;
+            border-width: 0.5px;
+            border-style: solid;
+            border-color: rgb(181, 181, 181);
+            background: #1DA1F2;
+            cursor: pointer;
+        }
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            border-width: 0.5px;
+            border-style: solid;
+            border-color: silver;
+            background: white;
+            cursor: pointer;
+        }
+        
+        #color-picker {
+            position: absolute;
+            bottom: 200px;
+            width: 140px;
+            height: 140px;
+            left: 60px;
+            border-radius: 10%;
+            border-width: 0px;
+            text-align:center;
+            box-shadow: 2px 2px 3px #999;
+        }
+
+    </style>
+
+
+    <script type="text/javascript" canvas="canvas">
+    window.addEventListener('load', init, false);
+    function init() {
+        document.addEventListener('click', enter, false);
+    }
+ 
+    function enter(e) {
+        if (e.target.nodeName == 'TXT') {
+            return;
+        }
+        text_box(e);
+    }
+ 
+    var set = 0;
+    function text_box(e) {
+        var txt = document.createElement('TXT');
+        set = set + 1;
+        txt.id = 'edit_' + set;
+        txt.contentEditable = true;
+        txt.ondlclick = function(e) {
+            e.preventDefault();
+        }
+        txt.style.border = 'solid 0px #ff0000';
+        txt.style.height = '100px';
+        txt.style.width = '200px';
+        txt.style.left = e.x + 'px';
+        txt.style.top = e.y + 'px';
+        txt.style.position = 'fixed';
+        txt.style.display = 'block';
+        document.body.appendChild(txt);
+    }
+    </script>
+
+
+    <script type="text/javascript" canvas="canvas">
+        window.onload = function() {
+            var canvas = document.getElementById('myCanvas');
+            var strokeSize = 10;
+
+            // coloring page
+            var mandala = {
+                item: null,
+                lastClicked: null,
+                filePath: ''
+            };
+
+            // color palette
+            var cp = {
+                history: ["#000000"], // black selected by default
+                options: [],
+                $container: $('#color-palette')
+            }
+
+            function tapToFill() {
+                var tool = new paper.Tool();
+
+                tool.onMouseDown = function (event) {
+                    // If the position of the mouse is within a svg element
+                    var hit = mandala.item.hitTest(event.point, { tolerance: 10, fill: true });
+                    if (hit) {
+                            // Color pallette keeps track of the full history of colors, though we
+                            // only color in with the most-recent color.
+                        hit.item.fillColor = cp.history[cp.history.length - 1];
+
+                    }
+                }
+            }
+
+            // create a color palette with the given colors
+            function createColorPalette(colors){
+
+                // create a swatch for each color
+                for (var i = colors.length - 1; i >= 0; i--) {
+                    var $swatch = $("<div>").css("background-color", colors[i])
+                                       .addClass("swatch");
+                    $swatch.click(function(){
+                        // add color to the color palette history
+                        cp.history.push($(this).css("background-color"));
+                    });
+                    cp.$container.append($swatch);
+                }
+            }
+
+            // loads a set of colors from a json to create a color palette
+            function getColorsCreatePalette(){
+                cp.$container.html(" ");
+                $.getJSON('/static/draw/vendor/material/material-colors.json', function(colors){
+                    var keys = Object.keys(colors);
+                    for (var i = keys.length - 1; i >= 0; i--) {
+                        cp.options.push(colors[keys[i]][500]);
+                    }
+                    createColorPalette(cp.options);
+                });
+            }
+
+            function init(custom){
+                paper.setup(canvas);
+                getColorsCreatePalette();
+
+                paper.project.importSVG(mandala.filePath, function(item) {
+                    mandala.item = item._children["design-freepik"];
+                    paper.project.insertLayer(0,mandala.item);
+
+                    // Resize the image to match the size of canvas
+                    tapToFill();
+                });
+            }
+
+            // Set up the mandala interactivity.
+            init(true);
+
+            // Refresh page if the reset button is clicked
+            $("reset").on("click", function () {
+                window.location.reload();
+            });
+            // Change stroke size using slider: https://stackoverflow.com/questions/56912782/change-linewidth-on-canvas-using-slider-in-javascript-jquery
+            theLineWidth.addEventListener("input",function () {
+                strokeSize = theLineWidth.value;
+            });
+
+            // Toogling Tools: https://stackoverflow.com/questions/49215584/toggling-multiple-tools-on-paper-js
+            // Mouse Drawing Tools (Line Tool, Circle Tool, Path Tooth): http://paperjs.org/tutorials/interaction/creating-mouse-tools/
+            const activateTool = name => {
+                const tool = paper.tools.find(tool => tool.name === name);
+                tool.activate();
+            }
+            
+            ;(() => {
+                const tool = new paper.Tool();
+                tool.name = 'toolPath';
+                let path;
+                tool.onMouseDown = function(event) {
+                    path = new paper.Path();
+                    path.strokeColor = cp.history[cp.history.length - 1];
+                    path.strokeWidth = strokeSize;
+                    path.add(event.point);
+                }
+                tool.onMouseDrag = function(event) {
+                    path.add(event.point);
+                }
+            })()
+
+            
+            ;(() => {
+                const tool = new paper.Tool()
+                tool.name = 'toolFill'
+                tool.onMouseDown = function(event) {
+                    var hit = mandala.item.hitTest(event.point, { tolerance: 10, fill: true });
+                    if (hit) {
+                        hit.item.fillColor = cp.history[cp.history.length - 1];
+
+                    }
+                }
+            })()
+            
+            ;(() => {
+                const tool = new paper.Tool();
+                tool.name = 'toolLine';
+                let path;
+                tool.onMouseDown = function(event) {
+                    path = new paper.Path();
+                    path.strokeWidth = strokeSize;
+                    path.strokeColor = cp.history[cp.history.length - 1];
+                    path.add(event.point);
+                }
+                tool.onMouseUp = function(event) {
+                    path.add(event.point);
+                }
+            })()
+
+            ;(() => {
+                const tool = new paper.Tool();
+                tool.name = 'toolCircle';
+                let path;
+                tool.onMouseDown = function(event) {
+                    path = new paper.Path();
+                }
+                tool.onMouseDrag =function(event) {
+                    path.add(event.point);
+                }
+                tool.onMouseUp = function(event) {
+                    var circle = new paper.Path.Circle({
+                        center: event.middlePoint,
+                        radius: event.delta.length / 2
+                    });
+                    circle.strokeWidth = strokeSize;
+                    circle.strokeColor = cp.history[cp.history.length - 1];
+                }
+            })()
+
+            ;(() => {
+                const tool = new paper.Tool();
+                tool.name = 'toolRectangle';
+                let path;
+                tool.onMouseDown = function(event) {
+                    path = new paper.Path();
+                }
+                tool.onMouseDrag =function(event) {
+                    path.add(event.point);
+                }
+                tool.onMouseUp = function(event) {
+                    var rectangle = new paper.Path.Rectangle({
+                    x: event.point.x,
+                    y: event.point.y,
+                    width: event.delta.length+100,
+                    height: event.delta.length
+                    });
+                    rectangle.strokeWidth = strokeSize;
+                    rectangle.strokeColor = cp.history[cp.history.length - 1];
+                }
+            })()
+
+
+            ;(() => {
+                const tool = new paper.Tool();
+                tool.name = 'toolEraser';
+                let path
+                tool.onMouseDown = function(event) {
+                    path = new paper.Path();
+                    path.strokeColor = '#FFFFFF';
+                    path.strokeWidth = strokeSize;
+                    path.add(event.point);
+                }
+                tool.onMouseDrag = function(event) {
+                    path.add(event.point);
+                }
+            })()
+
+                document.querySelectorAll('.tool-button').forEach(toolBtn => {
+                    toolBtn.addEventListener('click', e => {
+                    activateTool(e.target.getAttribute('data-tool-name'));
+                })
+            })
+        }
+    </script>
+</head>
+<body>
+    <!-- COLORING CONTROL PANEL-->
+    <div id="color-palette"></div>
+
+    <div class="tool-control"> 
+        <!-- Range slider customization: https://www.w3schools.com/howto/howto_js_rangeslider.asp -->
+        <div class="slidecontainer">
+            <img src="https://i.ibb.co/C103nLM/stroke.png" alt="stroke" style="padding-right: 10px;">  
+            <input type="range" class='slider' id="theLineWidth"  min="1" max="40" value="2" title="Line width" oninput="this.nextElementSibling.value = this.value"> 
+            <output style="padding-left:10px; font-size: 15px; font-weight: 800; padding-right: 3px;">15</output> px
+        </div>
+        <div id="tool-panel">
+            <button class="tool-button tool-float" data-tool-name="toolPath"><img src="https://i.ibb.co/0y6Gjyq/paintbrush.png" alt="paintbrush" style="transform: scaleX(-1);" class="tool-image"></button>
+            <button class="tool-button tool-float" data-tool-name="toolFill" style="margin-left: 20px;"><img src="https://www.iconsdb.com/icons/preview/caribbean-blue/text-xxl.png" class="tool-image"></button>
+            <button class="tool-button tool-float" data-tool-name="toolLine" style="margin-left: 20px;"><img src="https://i.ibb.co/vByvCY5/line.png" alt="line" class="tool-image"></button>
+            <button class="tool-button tool-float" data-tool-name="toolCircle" style="margin-left: 20px;"><img src="https://i.ibb.co/LR1Rh2H/circumference-1.png" alt="circumference-1" class="tool-image"></button>            
+            <button class="tool-button tool-float" data-tool-name="toolRectangle" style="margin-left: 20px;"><img src="https://www.seekpng.com/png/small/303-3037533_presentation-photo-frames-blue-rectangle-border-png.png" alt="eraser"class="tool-image"></button>
+            <button class="tool-button tool-float" data-tool-name="toolEraser" style="margin-left: 20px;"><img src="https://i.ibb.co/Y0pVwMc/eraser.png" alt="eraser"class="tool-image"></button>
+        </div>
+    </div>
+
+    <!-- CANVAS-->
+    <div id='canvas-container'><canvas id="myCanvas"></canvas></div>    
+
+    <!-- FLOATING SHARE BUTTON WITH SUBMENU -->
+    <!-- http://androidcss.com/css/css3-floating-button-tutorial/ -->
+    <div>
+        <a href="#" class="float" id="menu-share">
+            <i class="fa fa-share my-float"></i>
+        </a>
+        <ul>
+            <li id='out'><a href="art_collection">
+                <i class="fa fa-sign-out my-float"></i>
+            </a></li>
+            
+            <li id='facebook'><a href="https://www.facebook.com/">
+                <i class="fa fa-facebook my-float"></i>
+            </a></li>
+            <li id='google'><a href="https://www.google.com/">
+                <i class="fa fa-google-plus my-float"></i>
+            </a></li>
+            <li id='twitter'><a href="https://twitter.com/?lang=en">
+                <i class="fa fa-twitter my-float"></i>
+            </a></li>
+            <li id='reset' ><a href="">
+                <i class="fa fa-trash my-float" ></i>
+            </a></li>
+        </ul>
+    </div>
+</body>
+</html>
