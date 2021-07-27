@@ -296,7 +296,7 @@
 
     </style>
 
-
+    <!-- Text input -->
     <script type="text/javascript" canvas="canvas">
     window.addEventListener('load', init, false);
     function init() {
@@ -333,54 +333,27 @@
 
     <script type="text/javascript" canvas="canvas">
         window.onload = function() {
+
+            // Setup canvas
             var canvas = document.getElementById('myCanvas');
-            var strokeSize = 10;
-
-            // coloring page
-            var mandala = {
-                item: null,
-                lastClicked: null,
-                filePath: ''
-            };
-
-            // color palette
+            paper.setup(canvas);
+            
+            // Setup color palette
             var cp = {
-                history: ["#000000"], // black selected by default
+                history: ["#000000"], 
                 options: [],
                 $container: $('#color-palette')
             }
-
-            function tapToFill() {
-                var tool = new paper.Tool();
-
-                tool.onMouseDown = function (event) {
-                    // If the position of the mouse is within a svg element
-                    var hit = mandala.item.hitTest(event.point, { tolerance: 10, fill: true });
-                    if (hit) {
-                            // Color pallette keeps track of the full history of colors, though we
-                            // only color in with the most-recent color.
-                        hit.item.fillColor = cp.history[cp.history.length - 1];
-
-                    }
-                }
-            }
-
-            // create a color palette with the given colors
             function createColorPalette(colors){
-
-                // create a swatch for each color
                 for (var i = colors.length - 1; i >= 0; i--) {
                     var $swatch = $("<div>").css("background-color", colors[i])
                                        .addClass("swatch");
                     $swatch.click(function(){
-                        // add color to the color palette history
                         cp.history.push($(this).css("background-color"));
                     });
                     cp.$container.append($swatch);
                 }
             }
-
-            // loads a set of colors from a json to create a color palette
             function getColorsCreatePalette(){
                 cp.$container.html(" ");
                 $.getJSON('/static/draw/vendor/material/material-colors.json', function(colors){
@@ -391,34 +364,16 @@
                     createColorPalette(cp.options);
                 });
             }
+            getColorsCreatePalette();
 
-            function init(custom){
-                paper.setup(canvas);
-                getColorsCreatePalette();
-
-                paper.project.importSVG(mandala.filePath, function(item) {
-                    mandala.item = item._children["design-freepik"];
-                    paper.project.insertLayer(0,mandala.item);
-
-                    // Resize the image to match the size of canvas
-                    tapToFill();
-                });
-            }
-
-            // Set up the mandala interactivity.
-            init(true);
-
-            // Refresh page if the reset button is clicked
-            $("reset").on("click", function () {
-                window.location.reload();
-            });
-            // Change stroke size using slider: https://stackoverflow.com/questions/56912782/change-linewidth-on-canvas-using-slider-in-javascript-jquery
+            // Stroke size adjuster: https://stackoverflow.com/questions/56912782/change-linewidth-on-canvas-using-slider-in-javascript-jquery
+            var strokeSize = 5;
             theLineWidth.addEventListener("input",function () {
                 strokeSize = theLineWidth.value;
             });
 
-            // Toogling Tools: https://stackoverflow.com/questions/49215584/toggling-multiple-tools-on-paper-js
             // Mouse Drawing Tools (Line Tool, Circle Tool, Path Tooth): http://paperjs.org/tutorials/interaction/creating-mouse-tools/
+            // Toogling Tools: https://stackoverflow.com/questions/49215584/toggling-multiple-tools-on-paper-js
             const activateTool = name => {
                 const tool = paper.tools.find(tool => tool.name === name);
                 tool.activate();
@@ -443,7 +398,7 @@
             ;(() => {
                 const tool = new paper.Tool()
                 tool.name = 'toolText'
-
+                
             })()
             
             ;(() => {
@@ -506,7 +461,6 @@
                 }
             })()
 
-
             ;(() => {
                 const tool = new paper.Tool();
                 tool.name = 'toolEraser';
@@ -527,11 +481,19 @@
                     activateTool(e.target.getAttribute('data-tool-name'));
                 })
             })
+
+            // Page reload
+            $("reset").on("click", function () {
+                window.location.reload();
+            });
         }
     </script>
 </head>
 <body>
-    <!-- COLORING CONTROL PANEL-->
+    <!-- Canvas-->
+    <div id='canvas-container'><canvas id="myCanvas"></canvas></div>    
+
+    <!-- Color palette-->
     <div id="color-palette"></div>
 
     <div class="tool-control"> 
@@ -541,6 +503,7 @@
             <input type="range" class='slider' id="theLineWidth"  min="1" max="40" value="2" title="Line width" oninput="this.nextElementSibling.value = this.value"> 
             <output style="padding-left:10px; font-size: 15px; font-weight: 800; padding-right: 3px;">15</output> px
         </div>
+        <!-- Mouse drawing tools-->
         <div id="tool-panel">
             <button class="tool-button tool-float" data-tool-name="toolPath"><img src="https://i.ibb.co/0y6Gjyq/paintbrush.png" alt="paintbrush" style="transform: scaleX(-1);" class="tool-image"></button>
             <button class="tool-button tool-float" data-tool-name="toolText" style="margin-left: 20px;"><img src="https://www.iconsdb.com/icons/preview/caribbean-blue/text-xxl.png" class="tool-image"></button>
@@ -551,10 +514,7 @@
         </div>
     </div>
 
-    <!-- CANVAS-->
-    <div id='canvas-container'><canvas id="myCanvas"></canvas></div>    
-
-    <!-- FLOATING SHARE BUTTON WITH SUBMENU -->
+    <!-- Floating share menu -->
     <!-- http://androidcss.com/css/css3-floating-button-tutorial/ -->
     <div>
         <a href="#" class="float" id="menu-share">
