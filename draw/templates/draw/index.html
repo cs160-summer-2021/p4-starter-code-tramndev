@@ -396,9 +396,7 @@
             ;(() => {
                 const tool = new paper.Tool();
                 tool.name = 'toolPath';
-                // let path;
                 tool.onMouseDown = function(event) {
-                    var currColor = cp.history[cp.history.length - 1];;
                     var data = {
                         tool: 'toolPath',
                         mouse: 'mouseDown',
@@ -406,7 +404,7 @@
                         device: userDevice,
                         x: event.point.x,
                         y: event.point.y,
-                        color: currColor,
+                        color: cp.history[cp.history.length - 1],
                         strokeW: strokeSize
                     }
                     socket.send(JSON.stringify(data));
@@ -433,15 +431,29 @@
             ;(() => {
                 const tool = new paper.Tool();
                 tool.name = 'toolLine';
-                let path;
                 tool.onMouseDown = function(event) {
-                    path = new paper.Path();
-                    path.strokeWidth = strokeSize;
-                    path.strokeColor = cp.history[cp.history.length - 1];
-                    path.add(event.point);
+                    var data = {
+                        tool: 'toolLine',
+                        mouse: 'mouseDown',
+                        userID: uid,
+                        device: userDevice,
+                        x: event.point.x,
+                        y: event.point.y,
+                        color: cp.history[cp.history.length - 1],
+                        strokeW: strokeSize
+                    }
+                    socket.send(JSON.stringify(data));
                 }
                 tool.onMouseUp = function(event) {
-                    path.add(event.point);
+                    var data = {
+                        tool: 'toolLine',
+                        mouse: "mouseUp",
+                        userID: uid,
+                        device: userDevice,
+                        x: event.point.x,
+                        y: event.point.y
+                    }
+                    socket.send(JSON.stringify(data));
                 }
             })()
 
@@ -516,25 +528,30 @@
                 if (uid != received.userID && received.device == 'small' && userDevice == 'small') {
                     return;
                 } else {
-                    console.log(received.tool);
                     switch(received.tool) {
                         case 'toolPath':
                             if (received.mouse == 'mouseDown') {
                                 path = new paper.Path();
                                 path.strokeWidth = received.strokeW;
+                                path.strokeColor = received.color;
                                 if (received.userID == uid) {
                                     path.strokeColor = cp.history[cp.history.length - 1];;
-                                } else {
-                                    path.strokeColor = received.color;
                                 }
                             }
-                            if (received.mouse == 'mouseDrag') {
-                                var new_p = new paper.Point(received.x, received.y); 
-                                path.add(new_p);
-                            }
+                            path.add(new paper.Point(received.x, received.y));
                             break;
 
-                        
+                        case 'toolLine':
+                            if (received.mouse == 'mouseDown') {
+                                path = new paper.Path();
+                                path.strokeWidth = received.strokeW;
+                                path.strokeColor = received.color;
+                                if (received.userID == uid) {
+                                    path.strokeColor = cp.history[cp.history.length - 1];;
+                                }
+                            }
+                            path.add(new paper.Point(received.x, received.y));
+                            break;
                     }
                     
                 }
