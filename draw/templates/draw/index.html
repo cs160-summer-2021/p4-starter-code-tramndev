@@ -181,9 +181,9 @@
 
         /* CANVAS */
         #canvas-container {
-            padding-left: 18%;
+            padding-left: 250px;
             position: fixed;
-            height: 75%;
+            height: 76%;
         }
 
         #myCanvas {
@@ -297,7 +297,7 @@
     </style>
 
     <!-- Text input -->
-    <script type="text/javascript" canvas="canvas">
+    <!-- <script type="text/javascript" canvas="canvas">
         window.addEventListener('load', init, false);
         function init() {
             document.addEventListener('click', enter, false);
@@ -328,7 +328,7 @@
             txt.style.display = 'block';
             document.body.appendChild(txt);
         }
-    </script>
+    </script> -->
 
 
     <script type="text/javascript" canvas="canvas">
@@ -367,10 +367,9 @@
             getColorsCreatePalette();
 
             // Stroke size adjuster: https://stackoverflow.com/questions/56912782/change-linewidth-on-canvas-using-slider-in-javascript-jquery
-            var strokeSize = 10;
+            var strokeSize = 5;
             theLineWidth.addEventListener("input",function () {
                 strokeSize = theLineWidth.value;
-                
             });
 
             // Setup websocket
@@ -378,10 +377,10 @@
 
             // Check user's device
             var url = window.location.href;
-            var userDevice = 'small'
+            var userDevice = 'small'; // iPad Pro (1366 x 1024)
             if (url == "http://127.0.0.1:8000/draw/?size=larg") {
-                userDevice = 'large'
-            } 
+                userDevice = 'large'; // Desktop (1920 x 1080)
+            }
 
             var uid = Date.now() % 10000;
             var path = new paper.Path();
@@ -459,6 +458,7 @@
             ;(() => {
                 const tool = new paper.Tool();
                 tool.name = 'toolCircle';
+                let start_p, end_p;
                 tool.onMouseDown = function(event) {
                     var data = {
                         tool: 'toolCircle',
@@ -663,7 +663,7 @@
         <!-- Mouse drawing tools-->
         <div id="tool-panel">
             <button class="tool-button tool-float" data-tool-name="toolPath"><img src="https://i.ibb.co/0y6Gjyq/paintbrush.png" alt="paintbrush" style="transform: scaleX(-1);" class="tool-image"></button>
-            <button class="tool-button tool-float" data-tool-name="toolText" style="margin-left: 20px;"><img src="https://www.iconsdb.com/icons/preview/caribbean-blue/text-xxl.png" class="tool-image"></button>
+            <!-- <button class="tool-button tool-float" data-tool-name="toolText" style="margin-left: 20px;"><img src="https://www.iconsdb.com/icons/preview/caribbean-blue/text-xxl.png" class="tool-image"></button> -->
             <button class="tool-button tool-float" data-tool-name="toolLine" style="margin-left: 20px;"><img src="https://i.ibb.co/vByvCY5/line.png" alt="line" class="tool-image"></button>
             <button class="tool-button tool-float" data-tool-name="toolCircle" style="margin-left: 20px;"><img src="https://i.ibb.co/LR1Rh2H/circumference-1.png" alt="circumference-1" class="tool-image"></button>            
             <button class="tool-button tool-float" data-tool-name="toolRectangle" style="margin-left: 20px;"><img src="https://www.seekpng.com/png/small/303-3037533_presentation-photo-frames-blue-rectangle-border-png.png" alt="eraser"class="tool-image"></button>
