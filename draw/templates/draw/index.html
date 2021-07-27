@@ -180,10 +180,15 @@
         }
 
         /* CANVAS */
+        #canvas-container {
+            padding-left: 18%;
+            position: fixed;
+            height: 75%;
+        }
+
         #myCanvas {
-            margin-left: 250px;
             width: 100vw; 
-            height: 80%;
+            height: 100%;
             display: block;
             background-color: rgb(255, 255, 255);
             box-shadow: 5px 5px 5px 5px #f4f1f1;
@@ -643,7 +648,7 @@
 </head>
 <body>
     <!-- Canvas-->
-    <canvas id="myCanvas"></canvas>  
+    <div id='canvas-container'><canvas id="myCanvas"></canvas></div>    
 
     <!-- Color palette-->
     <div id="color-palette"></div>
