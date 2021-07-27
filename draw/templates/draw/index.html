@@ -447,7 +447,7 @@
                 tool.onMouseUp = function(event) {
                     var data = {
                         tool: 'toolLine',
-                        mouse: "mouseUp",
+                        mouse: 'mouseUp',
                         userID: uid,
                         device: userDevice,
                         x: event.point.x,
@@ -460,20 +460,43 @@
             ;(() => {
                 const tool = new paper.Tool();
                 tool.name = 'toolCircle';
-                let path;
                 tool.onMouseDown = function(event) {
-                    path = new paper.Path();
+                    var data = {
+                        tool: 'toolCircle',
+                        mouse: 'mouseDown',
+                        userID: uid,
+                        device: userDevice,
+                        color: cp.history[cp.history.length - 1],
+                        strokeW: strokeSize
+                    }
+                    socket.send(JSON.stringify(data));
                 }
                 tool.onMouseDrag =function(event) {
-                    path.add(event.point);
+                    var data = {
+                        tool: 'toolCircle',
+                        mouse: "mouseDrag",
+                        userID: uid,
+                        device: userDevice,
+                        x: event.point.x,
+                        y: event.point.y,
+                        strokeW: strokeSize,
+                        color: cp.history[cp.history.length - 1],
+                    }
+                    socket.send(JSON.stringify(data));
                 }
                 tool.onMouseUp = function(event) {
-                    var circle = new paper.Path.Circle({
-                        center: event.middlePoint,
-                        radius: event.delta.length / 2
-                    });
-                    circle.strokeWidth = strokeSize;
-                    circle.strokeColor = cp.history[cp.history.length - 1];
+                    var data = {
+                        tool: 'toolCircle',
+                        mouse: 'mouseUp',
+                        userID: uid,
+                        device: userDevice,
+                        middleX: event.middlePoint.x,
+                        middleY: event.middlePoint.y,
+                        deltaLength: event.delta.length,
+                        color: cp.history[cp.history.length - 1],
+                        strokeW: strokeSize
+                    }
+                    socket.send(JSON.stringify(data));
                 }
             })()
 
@@ -551,6 +574,26 @@
                                 }
                             }
                             path.add(new paper.Point(received.x, received.y));
+                            break;
+                            
+                        case 'toolCircle':
+                            if (received.mouse == 'mouseDown') {
+                                path = new paper.Path();
+                            }
+                            if (received.mouse == 'mouseDrag') {
+                                path.add(new paper.Point(received.x, received.y));  
+                            } 
+                            if (received.mouse == 'mouseUp') {
+                                var circle = new paper.Path.Circle({
+                                    center: new paper.Point(received.middleX, received.middleY),
+                                    radius: received.deltaLength / 2,
+                                });
+                                circle.strokeWidth = received.strokeW;
+                                circle.strokeColor = received.color;
+                                if (received.userID == uid) {
+                                    circle.strokeColor = cp.history[cp.history.length - 1];;
+                                }
+                            }
                             break;
                     }
                     
