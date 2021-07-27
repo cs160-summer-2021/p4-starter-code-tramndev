@@ -9,7 +9,6 @@
     <script type="text/javascript" src="{% static 'draw/vendor/jquery/jquery-3.3.1.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'draw/vendor/paper/paper-full.min.js' %}"></script>
 
-
     <!-- Library for color picker -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.4.5/jscolor.js"></script>
 
@@ -181,14 +180,10 @@
         }
 
         /* CANVAS */
-        #canvas-container {
-            /* padding-top: 60px; */
-            padding-left: 250px;
-        }
-
         #myCanvas {
+            margin-left: 250px;
             width: 100vw; 
-            height: 1100px;
+            height: 80%;
             display: block;
             background-color: rgb(255, 255, 255);
             box-shadow: 5px 5px 5px 5px #f4f1f1;
@@ -298,36 +293,36 @@
 
     <!-- Text input -->
     <script type="text/javascript" canvas="canvas">
-    window.addEventListener('load', init, false);
-    function init() {
-        document.addEventListener('click', enter, false);
-    }
- 
-    function enter(e) {
-        if (e.target.nodeName == 'TXT') {
-            return;
+        window.addEventListener('load', init, false);
+        function init() {
+            document.addEventListener('click', enter, false);
         }
-        text_box(e);
-    }
- 
-    var set = 0;
-    function text_box(e) {
-        var txt = document.createElement('TXT');
-        set = set + 1;
-        txt.id = 'edit_' + set;
-        txt.contentEditable = true;
-        txt.ondlclick = function(e) {
-            e.preventDefault();
+    
+        function enter(e) {
+            if (e.target.nodeName == 'TXT') {
+                return;
+            }
+            text_box(e);
         }
-        txt.style.border = 'solid 0px #ff0000';
-        txt.style.height = '100px';
-        txt.style.width = '200px';
-        txt.style.left = e.x + 'px';
-        txt.style.top = e.y + 'px';
-        txt.style.position = 'fixed';
-        txt.style.display = 'block';
-        document.body.appendChild(txt);
-    }
+    
+        var set = 0;
+        function text_box(e) {
+            var txt = document.createElement('TXT');
+            set = set + 1;
+            txt.id = 'edit_' + set;
+            txt.contentEditable = true;
+            txt.ondlclick = function(e) {
+                e.preventDefault();
+            }
+            txt.style.border = 'solid 0px #ff0000';
+            txt.style.height = '100px';
+            txt.style.width = '200px';
+            txt.style.left = e.x + 'px';
+            txt.style.top = e.y + 'px';
+            txt.style.position = 'fixed';
+            txt.style.display = 'block';
+            document.body.appendChild(txt);
+        }
     </script>
 
 
@@ -648,7 +643,7 @@
 </head>
 <body>
     <!-- Canvas-->
-    <div id='canvas-container'><canvas id="myCanvas"></canvas></div>    
+    <canvas id="myCanvas"></canvas>  
 
     <!-- Color palette-->
     <div id="color-palette"></div>
