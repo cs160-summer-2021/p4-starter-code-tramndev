@@ -424,6 +424,36 @@
             ;(() => {
                 const tool = new paper.Tool()
                 tool.name = 'toolText'
+                var text, pt, content = '';
+                tool.onMouseDown = function(event) {
+                        text = new paper.PointText({
+                        point: [event.point.x, event.point.y],
+                        fillColor: cp.history[cp.history.length - 1],
+                        fontSize: strokeSize,
+                        content: 'Type text content and press enter to input text',
+                    });
+                    content = '';
+                    pt = new paper.Point(event.point.x, event.point.y);
+                }
+                tool.onKeyDown = function(event) {
+                    if (event.key == 'enter') {
+                        text.content = content;
+                        content = '';
+                        var data = {
+                            tool: 'toolText',
+                            userID: uid,
+                            device: userDevice,
+                            x: pt.x,
+                            y: pt.y,
+                            color: text.fillColor,
+                            strokeW: text.fontSize,
+                            content: text.content
+                        }
+                        socket.send(JSON.stringify(data));
+                    } else {
+                        content += event.character;
+                    }
+                }
             })()
             
             ;(() => {
@@ -590,6 +620,15 @@
                             }
                             path.add(new paper.Point(received.x, received.y));
                             break;
+                        
+                        case 'toolText':
+                            var text = new paper.PointText({
+                                point: [received.x, received.y],
+                                fillColor: received.color,
+                                fontSize: received.strokeW,
+                                content: received.content,
+                            });
+                            break;
 
                         case 'toolCircle':
                             if (received.mouse == 'mouseDown') {
@@ -663,7 +702,7 @@
         <!-- Mouse drawing tools-->
         <div id="tool-panel">
             <button class="tool-button tool-float" data-tool-name="toolPath"><img src="https://i.ibb.co/0y6Gjyq/paintbrush.png" alt="paintbrush" style="transform: scaleX(-1);" class="tool-image"></button>
-            <!-- <button class="tool-button tool-float" data-tool-name="toolText" style="margin-left: 20px;"><img src="https://www.iconsdb.com/icons/preview/caribbean-blue/text-xxl.png" class="tool-image"></button> -->
+            <button class="tool-button tool-float" data-tool-name="toolText" style="margin-left: 20px;"><img src="https://www.iconsdb.com/icons/preview/caribbean-blue/text-xxl.png" class="tool-image"></button>
             <button class="tool-button tool-float" data-tool-name="toolLine" style="margin-left: 20px;"><img src="https://i.ibb.co/vByvCY5/line.png" alt="line" class="tool-image"></button>
             <button class="tool-button tool-float" data-tool-name="toolCircle" style="margin-left: 20px;"><img src="https://i.ibb.co/LR1Rh2H/circumference-1.png" alt="circumference-1" class="tool-image"></button>            
             <button class="tool-button tool-float" data-tool-name="toolRectangle" style="margin-left: 20px;"><img src="https://www.seekpng.com/png/small/303-3037533_presentation-photo-frames-blue-rectangle-border-png.png" alt="eraser"class="tool-image"></button>
