@@ -367,14 +367,28 @@
             getColorsCreatePalette();
 
             // Stroke size adjuster: https://stackoverflow.com/questions/56912782/change-linewidth-on-canvas-using-slider-in-javascript-jquery
-            var strokeSize = 5;
+            var strokeSize = 10;
             theLineWidth.addEventListener("input",function () {
                 strokeSize = theLineWidth.value;
+                
             });
 
+            // Setup websocket
+            var socket = new WebSocket('ws://' + window.location.host + '/ws/draw');
+
+            // Check user's device
+            var url = window.location.href;
+            var userDevice = 'small'
+            if (url == "http://127.0.0.1:8000/draw/?size=larg") {
+                userDevice = 'large'
+            } 
+
+            var uid = Date.now() % 10000;
+            // var userColor = cp.history[cp.history.length - 1];
+            var path = new paper.Path();
+
             // Mouse Drawing Tools (Line Tool, Circle Tool, Path Tooth): http://paperjs.org/tutorials/interaction/creating-mouse-tools/
-            // Toogling Tools: https://stackoverflow.com/questions/49215584/toggling-multiple-tools-on-paper-js
-            const activateTool = name => {
+            const activateTool = name => { // Toogling Tools: https://stackoverflow.com/questions/49215584/toggling-multiple-tools-on-paper-js
                 const tool = paper.tools.find(tool => tool.name === name);
                 tool.activate();
             }
@@ -382,15 +396,31 @@
             ;(() => {
                 const tool = new paper.Tool();
                 tool.name = 'toolPath';
-                let path;
+                // let path;
                 tool.onMouseDown = function(event) {
-                    path = new paper.Path();
-                    path.strokeColor = cp.history[cp.history.length - 1];
-                    path.strokeWidth = strokeSize;
-                    path.add(event.point);
+                    var currColor = cp.history[cp.history.length - 1];;
+                    var data = {
+                        tool: 'toolPath',
+                        mouse: 'mouseDown',
+                        userID: uid,
+                        device: userDevice,
+                        x: event.point.x,
+                        y: event.point.y,
+                        color: currColor,
+                        strokeW: strokeSize
+                    }
+                    socket.send(JSON.stringify(data));
                 }
                 tool.onMouseDrag = function(event) {
-                    path.add(event.point);
+                    var data = {
+                        tool: 'toolPath',
+                        mouse: "mouseDrag",
+                        userID: uid,
+                        device: userDevice,
+                        x: event.point.x,
+                        y: event.point.y
+                    }
+                    socket.send(JSON.stringify(data));
                 }
             })()
 
@@ -398,7 +428,6 @@
             ;(() => {
                 const tool = new paper.Tool()
                 tool.name = 'toolText'
-                
             })()
             
             ;(() => {
@@ -476,11 +505,43 @@
                 }
             })()
 
-                document.querySelectorAll('.tool-button').forEach(toolBtn => {
-                    toolBtn.addEventListener('click', e => {
+            document.querySelectorAll('.tool-button').forEach(toolBtn => {
+                toolBtn.addEventListener('click', e => {
                     activateTool(e.target.getAttribute('data-tool-name'));
                 })
             })
+
+            socket.onmessage = function(receivedMessage) {
+                var received = JSON.parse(receivedMessage.data);
+                if (uid != received.userID && received.device == 'small' && userDevice == 'small') {
+                    return;
+                } else {
+                    console.log(received.tool);
+                    switch(received.tool) {
+                        case 'toolPath':
+                            if (received.mouse == 'mouseDown') {
+                                path = new paper.Path();
+                                path.strokeWidth = received.strokeW;
+                                if (received.userID == uid) {
+                                    path.strokeColor = cp.history[cp.history.length - 1];;
+                                } else {
+                                    path.strokeColor = received.color;
+                                }
+                            }
+                            if (received.mouse == 'mouseDrag') {
+                                var new_p = new paper.Point(received.x, received.y); 
+                                path.add(new_p);
+                            }
+                            break;
+
+                        
+                    }
+                    
+                }
+            }
+            socket.onclose = function(e) {
+                console.error('Chat socket closed unexpectedly');
+            };
 
             // Page reload
             $("reset").on("click", function () {
