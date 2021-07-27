@@ -182,13 +182,13 @@
 
         /* CANVAS */
         #canvas-container {
-            padding-top: 60px;
-            padding-left: 25%;
+            /* padding-top: 60px; */
+            padding-left: 250px;
         }
 
         #myCanvas {
-            width: 700px; 
-            height: 700px;
+            width: 100vw; 
+            height: 1100px;
             display: block;
             background-color: rgb(255, 255, 255);
             box-shadow: 5px 5px 5px 5px #f4f1f1;
@@ -384,7 +384,6 @@
             } 
 
             var uid = Date.now() % 10000;
-            // var userColor = cp.history[cp.history.length - 1];
             var path = new paper.Path();
 
             // Mouse Drawing Tools (Line Tool, Circle Tool, Path Tooth): http://paperjs.org/tutorials/interaction/creating-mouse-tools/
@@ -466,8 +465,6 @@
                         mouse: 'mouseDown',
                         userID: uid,
                         device: userDevice,
-                        color: cp.history[cp.history.length - 1],
-                        strokeW: strokeSize
                     }
                     socket.send(JSON.stringify(data));
                 }
@@ -479,8 +476,6 @@
                         device: userDevice,
                         x: event.point.x,
                         y: event.point.y,
-                        strokeW: strokeSize,
-                        color: cp.history[cp.history.length - 1],
                     }
                     socket.send(JSON.stringify(data));
                 }
@@ -503,40 +498,72 @@
             ;(() => {
                 const tool = new paper.Tool();
                 tool.name = 'toolRectangle';
-                let path, start_p, end_p;
-
+                let start_p, end_p;
                 tool.onMouseDown = function(event) {
-                    path = new paper.Path();
+                    var data = {
+                        tool: 'toolRectangle',
+                        mouse: 'mouseDown',
+                        userID: uid,
+                        device: userDevice,
+                    }
+                    socket.send(JSON.stringify(data));
                     start_p = new paper.Point(event.point.x, event.point.y);
                 }
                 tool.onMouseDrag =function(event) {
-                    path.add(event.point);
+                    var data = {
+                        tool: 'toolRectangle',
+                        mouse: "mouseDrag",
+                        userID: uid,
+                        device: userDevice,
+                        x: event.point.x,
+                        y: event.point.y,
+                    }
+                    socket.send(JSON.stringify(data));
                     end_p = new paper.Point(event.point.x, event.point.y);
                 }
                 tool.onMouseUp = function(event) {
-                    var rectangle = new paper.Path.Rectangle({
-                        x: start_p.x,
-                        y: start_p.y,
+                    var data = {
+                        tool: 'toolRectangle',
+                        mouse: 'mouseUp',
+                        userID: uid,
+                        device: userDevice,
+                        rectX: start_p.x,
+                        rectY: start_p.y,
                         width: end_p.x - start_p.x,
-                        height:  end_p.y - start_p.y
-                    });
-                    rectangle.strokeWidth = strokeSize;
-                    rectangle.strokeColor = cp.history[cp.history.length - 1];
+                        height: end_p.y - start_p.y,
+                        color: cp.history[cp.history.length - 1],
+                        strokeW: strokeSize
+                    }
+                    socket.send(JSON.stringify(data));
                 }
             })()
 
             ;(() => {
                 const tool = new paper.Tool();
                 tool.name = 'toolEraser';
-                let path
                 tool.onMouseDown = function(event) {
-                    path = new paper.Path();
-                    path.strokeColor = '#FFFFFF';
-                    path.strokeWidth = strokeSize;
-                    path.add(event.point);
+                    var data = {
+                        tool: 'toolEraser',
+                        mouse: 'mouseDown',
+                        userID: uid,
+                        device: userDevice,
+                        x: event.point.x,
+                        y: event.point.y,
+                        color: '#FFFFFF',
+                        strokeW: strokeSize
+                    }
+                    socket.send(JSON.stringify(data));
                 }
                 tool.onMouseDrag = function(event) {
-                    path.add(event.point);
+                    var data = {
+                        tool: 'toolEraser',
+                        mouse: "mouseDrag",
+                        userID: uid,
+                        device: userDevice,
+                        x: event.point.x,
+                        y: event.point.y
+                    }
+                    socket.send(JSON.stringify(data));
                 }
             })()
 
@@ -552,30 +579,18 @@
                     return;
                 } else {
                     switch(received.tool) {
-                        case 'toolPath':
+                        case 'toolPath' : case 'toolLine': case 'toolEraser':
                             if (received.mouse == 'mouseDown') {
                                 path = new paper.Path();
                                 path.strokeWidth = received.strokeW;
                                 path.strokeColor = received.color;
-                                if (received.userID == uid) {
+                                if (received.userID == uid && received.tool != 'toolEraser') {
                                     path.strokeColor = cp.history[cp.history.length - 1];;
                                 }
                             }
                             path.add(new paper.Point(received.x, received.y));
                             break;
 
-                        case 'toolLine':
-                            if (received.mouse == 'mouseDown') {
-                                path = new paper.Path();
-                                path.strokeWidth = received.strokeW;
-                                path.strokeColor = received.color;
-                                if (received.userID == uid) {
-                                    path.strokeColor = cp.history[cp.history.length - 1];;
-                                }
-                            }
-                            path.add(new paper.Point(received.x, received.y));
-                            break;
-                            
                         case 'toolCircle':
                             if (received.mouse == 'mouseDown') {
                                 path = new paper.Path();
@@ -595,8 +610,29 @@
                                 }
                             }
                             break;
+
+                        case 'toolRectangle':
+                            if (received.mouse == 'mouseDown') {
+                                path = new paper.Path();
+                            }
+                            if (received.mouse == 'mouseDrag') {
+                                path.add(new paper.Point(received.x, received.y));  
+                            } 
+                            if (received.mouse == 'mouseUp') {
+                                var rectangle = new paper.Path.Rectangle({
+                                    x: received.rectX,
+                                    y: received.rectY,
+                                    width: received.width,
+                                    height: received.height
+                                });
+                                rectangle.strokeWidth = received.strokeW;
+                                rectangle.strokeColor = received.color;
+                                if (received.userID == uid) {
+                                    rectangle.strokeColor = cp.history[cp.history.length - 1];;
+                                }
+                            }
+                            break;
                     }
-                    
                 }
             }
             socket.onclose = function(e) {
