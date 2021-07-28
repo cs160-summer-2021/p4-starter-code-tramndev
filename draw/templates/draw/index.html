@@ -172,7 +172,7 @@
             height: 64px;
             -moz-border-radius: 32px;
             -webkit-border-radius: 32px;
-            border-radius: 32px;
+            border-radius: 15px;
             margin: 5px;
             border-width: 2px;
             border-style: solid;
@@ -339,17 +339,19 @@
 
             // Check user's device and setup canvas accordingly
             var canvas = document.getElementById('myCanvas');
-            var smallW = 630, smallH = 1000;
-            var deltaW = smallW, deltaH = 200;
+            var smallW = 630, smallH = 1200;
+            var deltaW = smallW, deltaH = 150;
             var url = window.location.href;
             var userDevice = 'small';
             if (url == "http://127.0.0.1:8000/draw/?size=larg#") {
                 userDevice = 'large'; 
                 canvas.width = smallW * numClient;
-                canvas.height = smallH + 200;
+                canvas.height = smallH;
+                // canvas.style.marginTop = '200px';
             } else {
                 canvas.width = smallW
                 canvas.height = smallH;
+                // canvas.style.marginTop = '200px';
             }
             paper.setup(canvas);
 
