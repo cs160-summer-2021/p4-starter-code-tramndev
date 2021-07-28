@@ -158,18 +158,18 @@
 
         /* COLORING CONTROL PANEL */
         #color-palette {
-            width: 60px;
+            width: 80px;
             /* background-color: #f1f1f1; */
             display: flex;
             flex-wrap: wrap;
             position: absolute;
-            top: 15px;
-            left: 15px;
+            top: 50px;
+            left: 20px;
         }
 
         .swatch {
-            width: 36px;
-            height: 28px;
+            width: 64px;
+            height: 64px;
             -moz-border-radius: 32px;
             -webkit-border-radius: 32px;
             border-radius: 32px;
@@ -181,22 +181,22 @@
 
         /* CANVAS */
         #canvas-container {
-            padding-left: 70px;
+            padding-left: 120px;
             position: fixed;
-            height: 76%;
+            /* height: 82%; */
         }
 
         #myCanvas {
-            width: 120vw; 
-            height: 100%;
+            /* width: 100vw; 
+            height: 100%; */
             display: block;
             background-color: rgb(255, 255, 255);
             box-shadow: 5px 5px 5px 5px #f4f1f1;
         }
 
         .tool-control {
-            bottom: 0px;
-            height: 15px;
+            bottom: 50px;
+            height: 160px;
             position: absolute;
             display: flex;
             flex-direction: column;
@@ -208,14 +208,14 @@
             display: flex;
             flex-direction: row;
             flex-wrap: wrap;
-            width: 52vw;
+            width: 100vw;
             justify-content: center;
         }
 
         
         .tool-float{
-            width:55px;
-            height:55px;
+            width:70px;
+            height:70px;
             background-color:transparent ;
             color: #1DA1F2;
             border-radius:50px;
@@ -226,7 +226,7 @@
         }
 
         .tool-image {
-            width: 30px;
+            width: 40px;
             pointer-events:none;
         }
         .slidecontainer {
@@ -299,10 +299,6 @@
     <script type="text/javascript" canvas="canvas">
         window.onload = function() {
 
-            // Setup canvas
-            var canvas = document.getElementById('myCanvas');
-            paper.setup(canvas);
-            
             // Setup color palette
             var cp = {
                 history: ["#000000"], 
@@ -339,13 +335,23 @@
 
             // Setup websocket
             var socket = new WebSocket('ws://' + window.location.host + '/ws/draw');
+            var numClient = 2;
 
-            // Check user's device
+            // Check user's device and setup canvas accordingly
+            var canvas = document.getElementById('myCanvas');
+            var smallW = 630, smallH = 1000;
+            var deltaW = smallW, deltaH = 200;
             var url = window.location.href;
-            var userDevice = 'small'; // iPad Pro (1366 x 1024)
-            if (url == "http://127.0.0.1:8000/draw/?size=larg") {
-                userDevice = 'large'; // Desktop (1920 x 1080)
+            var userDevice = 'small';
+            if (url == "http://127.0.0.1:8000/draw/?size=larg#") {
+                userDevice = 'large'; 
+                canvas.width = smallW * numClient;
+                canvas.height = smallH + 200;
+            } else {
+                canvas.width = smallW
+                canvas.height = smallH;
             }
+            paper.setup(canvas);
 
             var uid = Date.now() % 10000;
             var path = new paper.Path();
