@@ -327,7 +327,7 @@
             getColorsCreatePalette();
 
             // Stroke size adjuster: https://stackoverflow.com/questions/56912782/change-linewidth-on-canvas-using-slider-in-javascript-jquery
-            var strokeSize = 10;
+            var strokeSize = 5;
             theLineWidth.addEventListener("input",function () {
                 strokeSize = theLineWidth.value;
             });
@@ -339,13 +339,13 @@
 
             // Check user's device and setup canvas accordingly
             var canvas = document.getElementById('myCanvas');
-            var smallW = 630, smallH = 800;
+            var smallW = 500, smallH = 800;
             var deltaW = smallW, deltaH = 150;
             var url = window.location.href;
             var userDevice = 'small';
             if (url == "http://127.0.0.1:8000/draw/?size=larg#") {
                 userDevice = 'large'; 
-                canvas.width = smallW * numClient;
+                canvas.width = smallW * numClient   ;
                 canvas.height = smallH;
                 // canvas.style.marginTop = '200px';
             } else {
@@ -402,7 +402,7 @@
                         text = new paper.PointText({
                         point: [event.point.x, event.point.y],
                         fillColor: cp.history[cp.history.length - 1],
-                        fontSize: strokeSize,
+                        fontSize: 20,
                         content: 'Type content and press enter to input text',
                     });
                     content = '';
@@ -418,7 +418,7 @@
                             device: userDevice,
                             x: pt.x,
                             y: pt.y,
-                            color: text.fillColor,
+                            color: cp.history[cp.history.length - 1],
                             strokeW: text.fontSize,
                             content: text.content
                         }
