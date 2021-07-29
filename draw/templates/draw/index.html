@@ -163,13 +163,13 @@
             display: flex;
             flex-wrap: wrap;
             position: absolute;
-            top: 50px;
+            top: 20px;
             left: 20px;
         }
 
         .swatch {
-            width: 64px;
-            height: 64px;
+            width: 50px;
+            height: 50px;
             -moz-border-radius: 32px;
             -webkit-border-radius: 32px;
             border-radius: 15px;
@@ -181,7 +181,7 @@
 
         /* CANVAS */
         #canvas-container {
-            padding-left: 120px;
+            padding-left: 100px;
             position: fixed;
             /* height: 82%; */
         }
@@ -195,12 +195,12 @@
         }
 
         .tool-control {
-            bottom: 50px;
-            height: 160px;
+            bottom: 30px;
+            height: 100px;
             position: absolute;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: space-around;
             align-items: center;
         }
 
@@ -214,8 +214,8 @@
 
         
         .tool-float{
-            width:70px;
-            height:70px;
+            width:50px;
+            height:50px;
             background-color:transparent ;
             color: #1DA1F2;
             border-radius:50px;
@@ -226,19 +226,18 @@
         }
 
         .tool-image {
-            width: 40px;
+            width: 25px;
             pointer-events:none;
         }
         .slidecontainer {
-            bottom: 170px;
+            bottom: 50px;
             left: 30%;
-            width: 520px;
-            height: 50px;
+            width: 400px;
+            height: 40px;
             display: flex;
             flex-direction: row;
             justify-content: center;
             align-items: center;
-            
 
         }
         .slider {
@@ -328,18 +327,19 @@
             getColorsCreatePalette();
 
             // Stroke size adjuster: https://stackoverflow.com/questions/56912782/change-linewidth-on-canvas-using-slider-in-javascript-jquery
-            var strokeSize = 20;
+            var strokeSize = 10;
             theLineWidth.addEventListener("input",function () {
                 strokeSize = theLineWidth.value;
             });
 
             // Setup websocket
             var socket = new WebSocket('ws://' + window.location.host + '/ws/draw');
+            var uid = Date.now() % 10000;
             var numClient = 2;
 
             // Check user's device and setup canvas accordingly
             var canvas = document.getElementById('myCanvas');
-            var smallW = 630, smallH = 1200;
+            var smallW = 630, smallH = 800;
             var deltaW = smallW, deltaH = 150;
             var url = window.location.href;
             var userDevice = 'small';
@@ -355,7 +355,7 @@
             }
             paper.setup(canvas);
 
-            var uid = Date.now() % 10000;
+            
             var path = new paper.Path();
 
             // Mouse Drawing Tools (Line Tool, Circle Tool, Path Tooth): http://paperjs.org/tutorials/interaction/creating-mouse-tools/
@@ -686,7 +686,7 @@
     <!-- Floating share menu -->
     <!-- http://androidcss.com/css/css3-floating-button-tutorial/ -->
     <div>
-        <a href="#" class="float" id="menu-share">
+        <!-- <a href="#" class="float" id="menu-share">
             <i class="fa fa-share my-float"></i>
         </a>
         <ul>      
@@ -702,7 +702,7 @@
             <li id='reset' ><a href="">
                 <i class="fa fa-trash my-float" ></i>
             </a></li>
-        </ul>
+        </ul> -->
     </div>
 </body>
 </html>
