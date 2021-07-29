@@ -4,7 +4,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Mindmap Maker - Variant 1</title>
+    <title>Mindmap Maker - Full Version</title>
     <link rel="stylesheet" type="text/css" href="{% static 'draw/vendor/bootstrap/css/bootstrap.min.css' %}">
     <script type="text/javascript" src="{% static 'draw/vendor/jquery/jquery-3.3.1.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'draw/vendor/paper/paper-full.min.js' %}"></script>
@@ -93,7 +93,7 @@
             border-radius:50px;
         }
         #facebook {
-            background-color: #227BEF;
+            background-color: green;
             border-radius:50px;
         }
         #google {
@@ -676,6 +676,9 @@
         <div id="tool-panel">
             <button class="tool-button tool-float" data-tool-name="toolPath"><img src="https://i.ibb.co/0y6Gjyq/paintbrush.png" alt="paintbrush" style="transform: scaleX(-1);" class="tool-image"></button>
             <button class="tool-button tool-float" data-tool-name="toolText" style="margin-left: 20px;"><img src="https://www.iconsdb.com/icons/preview/caribbean-blue/text-xxl.png" class="tool-image"></button>
+            <button class="tool-button tool-float" data-tool-name="toolLine" style="margin-left: 20px;"><img src="https://i.ibb.co/vByvCY5/line.png" alt="line" class="tool-image"></button>
+            <button class="tool-button tool-float" data-tool-name="toolCircle" style="margin-left: 20px;"><img src="https://i.ibb.co/LR1Rh2H/circumference-1.png" alt="circumference-1" class="tool-image"></button>            
+            <button class="tool-button tool-float" data-tool-name="toolRectangle" style="margin-left: 20px;"><img src="https://www.seekpng.com/png/small/303-3037533_presentation-photo-frames-blue-rectangle-border-png.png" alt="eraser"class="tool-image"></button>
             <button class="tool-button tool-float" data-tool-name="toolEraser" style="margin-left: 20px;"><img src="https://i.ibb.co/Y0pVwMc/eraser.png" alt="eraser"class="tool-image"></button>
         </div>
     </div>
@@ -687,10 +690,10 @@
             <i class="fa fa-share my-float"></i>
         </a>
         <ul>      
-            <li id='facebook'><a href="./">
+            <li id='twitter'><a href='./'>
                 <i class="fa fa-ravelry my-float">Full</i>
             </a></li>
-            <li id='google'><a href="variant2">
+            <li id='google'><a href='variant2'>
                 <i class="fa fa-ravelry my-float">2</i>
             </a></li>
         </ul>

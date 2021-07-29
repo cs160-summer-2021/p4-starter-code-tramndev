@@ -5,9 +5,9 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
-    # path('<str:room_name>/', views.room, name='room'),
+    path('<str:room_name>/', views.room, name='room'),
 
-    path('variant1', views.variant1, name='variant1'),
-    path('variant2', views.variant2, name='variant2'),
+    path('path', views.path, name='path'),
+    path('variant2', views.variant2, name='variant2')
 ]
 
